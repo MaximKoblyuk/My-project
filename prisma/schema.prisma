@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  image     String?
+  provider  String?  // 'email', 'google', 'apple'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  reviews       Review[]
+  favorites     Favorite[]
+  ownedServices Service[]
+
+  @@map("users")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  phone       String?
+  email       String?
+  website     String?
+  latitude    Float?
+  longitude   Float?
+  
+  // Business details
+  openingHours Json?    // Store opening hours as JSON
+  priceRange   String?  // '$', '$$', '$$$', '$$$$'
+  isVerified   Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  
+  // Owner information
+  owner       User?    @relation(fields: [ownerId], references: [id])
+  ownerId     String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  reviews     Review[]
+  images      ServiceImage[]
+  favorites   Favorite[]
+
+  @@map("services")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?   // Icon name or URL
+  color       String?   // Hex color for category
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  services    Service[]
+
+  @@map("categories")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  title     String?
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String
+  
+  // Review metadata
+  isVerified Boolean  @default(false)
+  isHidden   Boolean  @default(false)
+  helpfulCount Int    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, serviceId]) // One review per user per service
+  @@map("reviews")
+}
+
+model ServiceImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String
+  createdAt DateTime @default(now())
+
+  @@map("service_images")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, serviceId]) // One favorite per user per service
+  @@map("favorites")
+}

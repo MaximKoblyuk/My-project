@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#4285f4"/>
+  
+  <!-- Location pin with wrench -->
+  <g transform="translate(8, 4)">
+    <!-- Location pin -->
+    <path d="M8 2 C12 2, 15 5, 15 9 C15 13, 8 20, 8 20 S1 13, 1 9 C1 5, 4 2, 8 2 Z" fill="white"/>
+    
+    <!-- Wrench icon -->
+    <g transform="translate(5, 6)" fill="#4285f4">
+      <path d="M4 1l-0.5 0.5 1 1-1 1 0.5 0.5 1-1 1 1 0.5-0.5-1-1 1-1-0.5-0.5-1 1-1-1z" transform="scale(0.8)"/>
+    </g>
+  </g>
+</svg>

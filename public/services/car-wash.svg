@@ -1,0 +1,42 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="200" fill="#eff6ff"/>
+  
+  <!-- Car Wash Bay -->
+  <rect x="40" y="60" width="220" height="80" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  
+  <!-- Car -->
+  <g transform="translate(100, 100)">
+    <!-- Car Body -->
+    <rect x="0" y="0" width="100" height="30" rx="5" fill="#60a5fa"/>
+    <!-- Windshield -->
+    <rect x="5" y="-3" width="40" height="18" rx="2" fill="#bfdbfe"/>
+    <rect x="55" y="-3" width="40" height="18" rx="2" fill="#bfdbfe"/>
+    <!-- Wheels -->
+    <circle cx="15" cy="35" r="8" fill="#1f2937"/>
+    <circle cx="85" cy="35" r="8" fill="#1f2937"/>
+  </g>
+  
+  <!-- Soap Bubbles -->
+  <circle cx="70" cy="40" r="4" fill="#bfdbfe" opacity="0.8"/>
+  <circle cx="85" cy="35" r="3" fill="#93c5fd" opacity="0.8"/>
+  <circle cx="180" cy="45" r="5" fill="#dbeafe" opacity="0.8"/>
+  <circle cx="200" cy="40" r="3" fill="#bfdbfe" opacity="0.8"/>
+  <circle cx="220" cy="50" r="4" fill="#93c5fd" opacity="0.8"/>
+  
+  <!-- Water Sprays -->
+  <g stroke="#3b82f6" stroke-width="2" opacity="0.6">
+    <line x1="60" y1="20" x2="65" y2="80"/>
+    <line x1="80" y1="15" x2="85" y2="85"/>
+    <line x1="100" y1="20" x2="105" y2="80"/>
+    <line x1="180" y1="15" x2="175" y2="85"/>
+    <line x1="200" y1="20" x2="195" y2="80"/>
+    <line x1="220" y1="15" x2="215" y2="85"/>
+  </g>
+  
+  <!-- Shine Effect -->
+  <ellipse cx="150" cy="115" rx="40" ry="8" fill="#bfdbfe" opacity="0.5"/>
+  
+  <!-- Service Text -->
+  <text x="150" y="180" text-anchor="middle" fill="#1e40af" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Car Wash</text>
+</svg>

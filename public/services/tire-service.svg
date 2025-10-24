@@ -1,0 +1,52 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="200" fill="#f1f5f9"/>
+  
+  <!-- Service Floor -->
+  <rect x="20" y="120" width="260" height="40" fill="#cbd5e1"/>
+  
+  <!-- Car -->
+  <g transform="translate(80, 100)">
+    <!-- Car Body -->
+    <rect x="0" y="0" width="140" height="35" rx="6" fill="#0f172a"/>
+    <!-- Windshield -->
+    <rect x="10" y="-3" width="60" height="20" rx="3" fill="#e2e8f0"/>
+    <rect x="70" y="-3" width="60" height="20" rx="3" fill="#e2e8f0"/>
+    <!-- New Tires (highlighted) -->
+    <circle cx="25" cy="45" r="12" fill="#1f2937"/>
+    <circle cx="25" cy="45" r="9" fill="#fbbf24"/>
+    <circle cx="25" cy="45" r="6" fill="#f59e0b"/>
+    <circle cx="115" cy="45" r="12" fill="#1f2937"/>
+    <circle cx="115" cy="45" r="9" fill="#fbbf24"/>
+    <circle cx="115" cy="45" r="6" fill="#f59e0b"/>
+  </g>
+  
+  <!-- Tire Display -->
+  <g transform="translate(30, 60)">
+    <!-- Tire 1 -->
+    <circle cx="0" cy="0" r="15" fill="#1f2937"/>
+    <circle cx="0" cy="0" r="12" fill="#374151"/>
+    <circle cx="0" cy="0" r="6" fill="#6b7280"/>
+    <!-- Tire 2 -->
+    <circle cx="35" cy="5" r="15" fill="#1f2937"/>
+    <circle cx="35" cy="5" r="12" fill="#374151"/>
+    <circle cx="35" cy="5" r="6" fill="#6b7280"/>
+  </g>
+  
+  <!-- Price Tag -->
+  <g transform="translate(240, 40)">
+    <rect x="0" y="0" width="40" height="25" rx="3" fill="#fbbf24"/>
+    <polygon points="0,12.5 -8,8 -8,17" fill="#fbbf24"/>
+    <text x="20" y="16" text-anchor="middle" fill="#92400e" font-family="Arial, sans-serif" font-size="10" font-weight="bold">NEW</text>
+  </g>
+  
+  <!-- Tools -->
+  <g transform="translate(250, 100)">
+    <!-- Tire Iron -->
+    <rect x="0" y="0" width="3" height="25" fill="#6b7280"/>
+    <rect x="-5" y="22" width="13" height="3" fill="#6b7280"/>
+  </g>
+  
+  <!-- Service Text -->
+  <text x="150" y="185" text-anchor="middle" fill="#0f172a" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Tire Service</text>
+</svg>
