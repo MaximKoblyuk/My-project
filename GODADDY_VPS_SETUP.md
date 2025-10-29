@@ -261,13 +261,13 @@ sudo systemctl enable nginx
 2. **Add/Edit A Record:**
    - **Type:** A
    - **Name:** @ (for root domain)
-   - **Value:** YOUR_VPS_IP_ADDRESS
+   - **Value:** `46.252.194.173`
    - **TTL:** 600
 
 3. **Add/Edit A Record for www:**
    - **Type:** A
    - **Name:** www
-   - **Value:** YOUR_VPS_IP_ADDRESS
+   - **Value:** `46.252.194.173`
    - **TTL:** 600
 
 **Wait 15-30 minutes for DNS propagation**
@@ -318,6 +318,7 @@ sudo ufw enable
 
 ### Step 21: Test Your Deployment
 1. **Visit your domain:** https://fixpoints.cz
+2. **Your server IP:** `46.252.194.173`
 2. **Test all features:**
    - Homepage loads with video background
    - Search functionality works
