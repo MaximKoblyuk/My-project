@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bgGradient)"/>
+  
+  <!-- Service icon background -->
+  <circle cx="200" cy="120" r="40" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+  
+  <!-- Wrench and screwdriver icon -->
+  <g transform="translate(180, 100)">
+    <!-- Wrench -->
+    <path d="M8 4L4 8L8 12L12 8L8 4Z" fill="#64748b"/>
+    <path d="M8 8L16 16L20 12L12 4L8 8Z" fill="#64748b"/>
+    
+    <!-- Screwdriver -->
+    <path d="M24 4L28 8L32 4L28 0L24 4Z" fill="#64748b"/>
+    <path d="M28 8L28 20L32 24L32 28L28 32L24 28L24 24L28 8Z" fill="#64748b"/>
+  </g>
+  
+  <!-- Service placeholder text -->
+  <text x="200" y="180" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#475569">
+    Auto Service
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="200" y="205" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">
+    Professional Car Care
+  </text>
+  
+  <!-- Rating stars placeholder -->
+  <g transform="translate(165, 220)">
+    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#fbbf24"/>
+    <path d="M27 2L30.09 8.26L37 9.27L32 14.14L33.18 21.02L27 17.77L20.82 21.02L22 14.14L17 9.27L23.91 8.26L27 2Z" fill="#fbbf24"/>
+    <path d="M42 2L45.09 8.26L52 9.27L47 14.14L48.18 21.02L42 17.77L35.82 21.02L37 14.14L32 9.27L38.91 8.26L42 2Z" fill="#fbbf24"/>
+    <path d="M57 2L60.09 8.26L67 9.27L62 14.14L63.18 21.02L57 17.77L50.82 21.02L52 14.14L47 9.27L53.91 8.26L57 2Z" fill="#d1d5db"/>
+    <path d="M72 2L75.09 8.26L82 9.27L77 14.14L78.18 21.02L72 17.77L65.82 21.02L67 14.14L62 9.27L68.91 8.26L72 2Z" fill="#d1d5db"/>
+  </g>
+  
+  <!-- Bottom border -->
+  <rect x="0" y="280" width="400" height="20" fill="#3b82f6" opacity="0.1"/>
+</svg>

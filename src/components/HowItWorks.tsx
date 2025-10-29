@@ -70,16 +70,6 @@ export function HowItWorks() {
             )
           })}
         </div>
-
-        {/* CTA Button */}
-        <div className="text-center mt-16">
-          <button className="inline-flex items-center space-x-2 bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors">
-            <span>{language === 'en' ? 'Learn more about how it works' : 'Více o tom, jak to funguje'}</span>
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
-            </svg>
-          </button>
-        </div>
       </div>
     </section>
   )

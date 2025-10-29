@@ -1,6 +1,6 @@
 'use client'
 
-import { SearchBar } from '@/components/SearchBarNew'
+import { AdvancedSearchBar } from '@/components/AdvancedSearchBar'
 import { ServiceCategories } from '@/components/ServiceCategories'
 import { FeaturedServices } from '@/components/FeaturedServices'
 import { Header } from '@/components/Header'
@@ -8,8 +8,9 @@ import { HowItWorks } from '@/components/HowItWorks'
 import { CustomerReviews } from '@/components/CustomerReviews'
 import { Footer } from '@/components/Footer'
 import { VideoBackground } from '@/components/VideoBackground'
+import { ApiTestButton } from '@/components/ApiTestButton'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { CheckCircle, Shield, Clock } from 'lucide-react'
+import { CheckCircle, Shield, Clock, BarChart3, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
   const { language } = useLanguage()
@@ -48,7 +49,7 @@ export default function HomePage() {
           
           {/* Search Bar */}
           <div className="max-w-4xl mb-6">
-            <SearchBar />
+                    <AdvancedSearchBar />
           </div>
 
           {/* Quick Stats - Compact Style */}
@@ -74,6 +75,55 @@ export default function HomePage() {
           </div>
         </div>
       </VideoBackground>
+
+      {/* Live Stats from Google Places */}
+      <section className="py-12 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="flex items-center justify-center mb-2">
+                <TrendingUp className="w-6 h-6 mr-2" />
+                <span className="text-2xl font-bold">500+</span>
+              </div>
+              <p className="text-blue-100 text-sm">
+                {language === 'en' ? 'Live Services in Prague' : 'Živých služeb v Praze'}
+              </p>
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-center mb-2">
+                <BarChart3 className="w-6 h-6 mr-2" />
+                <span className="text-2xl font-bold">10</span>
+              </div>
+              <p className="text-blue-100 text-sm">
+                {language === 'en' ? 'Service Categories' : 'Kategorií služeb'}
+              </p>
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-center mb-2">
+                <CheckCircle className="w-6 h-6 mr-2" />
+                <span className="text-2xl font-bold">4.5★</span>
+              </div>
+              <p className="text-blue-100 text-sm">
+                {language === 'en' ? 'Average Rating' : 'Průměrné hodnocení'}
+              </p>
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-center mb-2">
+                <Shield className="w-6 h-6 mr-2" />
+                <span className="text-2xl font-bold">
+                  {language === 'en' ? 'Live' : 'Živě'}
+                </span>
+              </div>
+              <p className="text-blue-100 text-sm">
+                {language === 'en' ? 'Data from Google' : 'Data z Google'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Benefits Row - Carvago Style */}
       <section className="py-16 bg-white">
@@ -129,6 +179,7 @@ export default function HomePage() {
               {language === 'en' ? 'Choose from our most requested automotive services' : 'Vyberte si z našich nejžádanějších automobilových služeb'}
             </p>
           </div>
+          
           <ServiceCategories />
         </div>
       </section>

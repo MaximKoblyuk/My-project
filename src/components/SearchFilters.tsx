@@ -3,7 +3,18 @@
 import { useState } from 'react'
 import { Star, ChevronDown, ChevronUp } from 'lucide-react'
 
-export function SearchFilters() {
+interface SearchFiltersProps {
+  filters: {
+    category: string
+    rating: number
+    distance: string
+    price: string
+    openNow: boolean
+  }
+  onFiltersChange: (filters: any) => void
+}
+
+export function SearchFilters({ filters, onFiltersChange }: SearchFiltersProps) {
   const [openSections, setOpenSections] = useState<string[]>(['category', 'rating', 'price'])
 
   const toggleSection = (section: string) => {

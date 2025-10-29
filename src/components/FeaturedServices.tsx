@@ -148,12 +148,32 @@ export function FeaturedServices() {
     return language === 'en' ? category.en : category.cs
   }
 
+  // Map featured service categories to actual service IDs for search
+  const getServiceId = (categoryKey: string) => {
+    const serviceIdMap: Record<string, string> = {
+      'category.autoRepair': 'autoopravna',
+      'category.oilChange': 'vymena-oleje',
+      'category.carWash': 'myti-auta',
+      'category.detailing': 'detailing',
+      'category.brakeService': 'brzdy',
+      'category.tireService': 'pneuservis',
+      'category.diagnostics': 'diagnostika',
+      'category.acService': 'klimatizace',
+      'category.towingService': 'odtah'
+    }
+    
+    return serviceIdMap[categoryKey] || 'autoopravna'
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {featuredServices.map((service) => (
-        <Link
-          key={service.id}
-          href={`/services/${service.id}`}
+      {featuredServices.map((service) => {
+        const serviceId = getServiceId(service.categoryKey)
+        const categoryName = getCategoryName(service.categoryKey)
+        return (
+          <Link
+            key={service.id}
+          href={`/search?service=${serviceId}&category=${encodeURIComponent(categoryName)}&location=Praha`}
           className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
         >
           {/* Image */}
@@ -204,7 +224,8 @@ export function FeaturedServices() {
             </div>
           </div>
         </Link>
-      ))}
+        )
+      })}
     </div>
   )
 }

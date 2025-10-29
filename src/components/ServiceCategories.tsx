@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Wrench, Car, Droplets, Zap, Scissors, Shield, Truck } from 'lucide-react'
+import { Wrench, Car, Droplets, Zap, Scissors, Shield, Truck, CheckCircle } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export function ServiceCategories() {
@@ -9,56 +9,72 @@ export function ServiceCategories() {
 
   const categories = [
     {
+      id: 'autoopravna',
       icon: Wrench,
       name: language === 'en' ? 'Auto Repair' : 'Autoopravna',
       description: 'Engine, transmission, brake repairs',
-      href: '/categories/auto-repair'
+      category: language === 'en' ? 'Automotive Services' : 'Autoservisy'
     },
     {
+      id: 'vymena-oleje',
       icon: Car,
       name: language === 'en' ? 'Oil Change' : 'Výměna oleje',
       description: 'Quick oil change services',
-      href: '/categories/oil-change'
+      category: language === 'en' ? 'Maintenance' : 'Údržba'
     },
     {
+      id: 'myti-auta',
       icon: Droplets,
       name: language === 'en' ? 'Car Wash' : 'Mytí auta',
       description: 'Exterior and interior cleaning',
-      href: '/categories/car-wash'
+      category: language === 'en' ? 'Cleaning' : 'Čištění'
     },
     {
+      id: 'pneuservis',
       icon: Zap,
       name: language === 'en' ? 'Tire Service' : 'Pneumatiky',
       description: 'Installation, rotation, alignment',
-      href: '/categories/tire-service'
+      category: language === 'en' ? 'Tires' : 'Pneumatiky'
     },
     {
+      id: 'detailing',
       icon: Scissors,
       name: language === 'en' ? 'Detailing' : 'Detailing',
       description: 'Professional car detailing',
-      href: '/categories/detailing'
+      category: language === 'en' ? 'Cleaning' : 'Čištění'
     },
     {
+      id: 'diagnostika',
       icon: Shield,
       name: language === 'en' ? 'Diagnostics' : 'Diagnostika',
       description: 'Vehicle safety inspections',
-      href: '/categories/inspection'
+      category: language === 'en' ? 'Inspection' : 'Kontroly'
     },
     {
+      id: 'odtah',
       icon: Truck,
       name: language === 'en' ? 'Towing Service' : 'Odtahová služba',
       description: language === 'en' ? '24/7 emergency towing and roadside assistance' : '24/7 odtahová služba a pomoc na silnici',
-      href: '/categories/towing'
+      category: language === 'en' ? 'Emergency' : 'Pohotovost'
+    },
+    {
+      id: 'stk',
+      icon: CheckCircle,
+      name: language === 'en' ? 'MOT Test (STK)' : 'STK - Technická kontrola',
+      description: language === 'en' ? 'Mandatory technical inspection' : 'Povinná technická kontrola vozidla',
+      category: language === 'en' ? 'Inspection' : 'Kontroly'
     }
   ]
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {categories.map((category) => {
         const IconComponent = category.icon
+        
         return (
           <Link
             key={category.name}
-            href={category.href}
+            href={`/search?service=${category.id}&category=${encodeURIComponent(category.category)}&location=Praha`}
             className="group bg-white border border-gray-200 rounded-xl p-6 hover:border-blue-300 hover:shadow-lg transition-all duration-200 text-center"
           >
             <div className="flex justify-center mb-4">

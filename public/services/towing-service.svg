@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="40" cy="40" r="38" fill="#EF4444" stroke="#DC2626" stroke-width="2"/>
+  
+  <!-- Truck body -->
+  <rect x="15" y="32" width="35" height="16" rx="2" fill="white"/>
+  
+  <!-- Truck cab -->
+  <rect x="15" y="25" width="15" height="15" rx="2" fill="white"/>
+  
+  <!-- Windshield -->
+  <rect x="17" y="27" width="11" height="7" rx="1" fill="#EF4444" opacity="0.3"/>
+  
+  <!-- Wheels -->
+  <circle cx="22" cy="52" r="4" fill="#374151"/>
+  <circle cx="42" cy="52" r="4" fill="#374151"/>
+  
+  <!-- Wheel centers -->
+  <circle cx="22" cy="52" r="2" fill="#9CA3AF"/>
+  <circle cx="42" cy="52" r="2" fill="#9CA3AF"/>
+  
+  <!-- Tow hook/crane -->
+  <path d="M50 35 L58 25 L60 25 L60 27 L55 32 L50 38" stroke="white" stroke-width="2" fill="none"/>
+  
+  <!-- Hook -->
+  <circle cx="58" cy="25" r="2" fill="white"/>
+  
+  <!-- Cable -->
+  <path d="M55 32 Q60 30 65 35" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="2,2"/>
+  
+  <!-- Emergency light -->
+  <rect x="45" y="28" width="4" height="3" rx="1" fill="#FDE047"/>
+</svg>
