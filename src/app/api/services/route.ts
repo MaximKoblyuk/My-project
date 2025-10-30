@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const category = searchParams.get('category')
+    const categoryId = searchParams.get('categoryId')
     const search = searchParams.get('search')
     const location = searchParams.get('location')
     const page = parseInt(searchParams.get('page') || '1')
@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
 
     const where: any = {}
 
-    if (category && category !== 'all') {
-      where.category = category
+    if (categoryId && categoryId !== 'all') {
+      where.categoryId = categoryId
     }
 
     if (search) {
@@ -26,13 +26,17 @@ export async function GET(req: NextRequest) {
     }
 
     if (location) {
-      where.address = { contains: location, mode: 'insensitive' }
+      where.OR = [
+        { address: { contains: location, mode: 'insensitive' } },
+        { city: { contains: location, mode: 'insensitive' } }
+      ]
     }
 
     const [services, total] = await Promise.all([
       prisma.service.findMany({
         where,
         include: {
+          category: true,
           reviews: {
             select: {
               rating: true
@@ -96,8 +100,11 @@ export async function POST(req: NextRequest) {
     const {
       name,
       description,
-      category,
+      categoryId,
       address,
+      city,
+      state,
+      zipCode,
       phone,
       email,
       website,
@@ -107,9 +114,9 @@ export async function POST(req: NextRequest) {
       longitude
     } = await req.json()
 
-    if (!name || !description || !category || !address) {
+    if (!name || !description || !categoryId || !address || !city || !state || !zipCode) {
       return NextResponse.json(
-        { error: 'Name, description, category, and address are required' },
+        { error: 'Name, description, categoryId, address, city, state, and zipCode are required' },
         { status: 400 }
       )
     }
@@ -118,8 +125,11 @@ export async function POST(req: NextRequest) {
       data: {
         name,
         description,
-        category,
+        categoryId,
         address,
+        city,
+        state,
+        zipCode,
         phone: phone || null,
         email: email || null,
         website: website || null,

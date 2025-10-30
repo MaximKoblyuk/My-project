@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { serviceId, rating, comment } = await req.json()
+    const { serviceId, rating, content } = await req.json()
 
     if (!serviceId || !rating) {
       return NextResponse.json(
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         serviceId,
         rating,
-        comment: comment || null
+        content: content || ''
       },
       include: {
         user: {
