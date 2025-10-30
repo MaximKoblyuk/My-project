@@ -2,9 +2,9 @@ module.exports = {
   apps: [
     {
       name: 'fixpoints',
-      script: 'npm',
+      script: './node_modules/.bin/next',
       args: 'start',
-      cwd: '/var/www/fixpoints',
+      cwd: '/home/maximadmin/var/www/fixpoints',
       instances: 1,
       autorestart: true,
       watch: false,
