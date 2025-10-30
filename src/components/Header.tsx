@@ -58,7 +58,7 @@ export function Header() {
               <nav className="hidden lg:flex items-center space-x-8">
                 <Link 
                   href="/search" 
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
                 >
                   {language === 'en' ? 'Find Service' : 'Najít službu'}
                 </Link>
@@ -99,6 +99,10 @@ export function Header() {
                         <Link href="/services/warranty" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                           {language === 'en' ? 'Warranty' : 'Záruka'}
                         </Link>
+                        <hr className="my-2" />
+                        <Link href="/admin" className="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 font-medium">
+                          {language === 'en' ? '⚡ Dashboard' : '⚡ Dashboard'}
+                        </Link>
                       </div>
                     </div>
                   )}
@@ -115,7 +119,11 @@ export function Header() {
               {/* Right Side Actions - Carvago Style */}
               <div className="flex items-center space-x-4">
                 {/* Favorites */}
-                <Link href="/favorites" className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+                <Link 
+                  href="/favorites" 
+                  className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                  title={language === 'en' ? 'My Favorites' : 'Moje oblíbené'}
+                >
                   <Heart className="w-5 h-5" />
                 </Link>
 

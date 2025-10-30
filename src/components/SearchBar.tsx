@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Search, MapPin, ChevronDown, X } from 'lucide-react'
+import { Search, MapPin, ChevronDown, X, Wrench } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { searchServices, CAR_SERVICES } from '@/data/services'
 
 const CZECH_CITIES = [
   'Praha',
@@ -44,10 +45,13 @@ export function SearchBar() {
   const [distance, setDistance] = useState(5)
   const [showLocationDropdown, setShowLocationDropdown] = useState(false)
   const [showDistanceDropdown, setShowDistanceDropdown] = useState(false)
+  const [showServiceDropdown, setShowServiceDropdown] = useState(false)
   const [filteredCities, setFilteredCities] = useState<string[]>([])
+  const [filteredServices, setFilteredServices] = useState<typeof CAR_SERVICES>([])
   
   const locationRef = useRef<HTMLDivElement>(null)
   const distanceRef = useRef<HTMLDivElement>(null)
+  const serviceRef = useRef<HTMLDivElement>(null)
 
   const DISTANCE_OPTIONS = [
     { 
@@ -76,6 +80,7 @@ export function SearchBar() {
     }
   ]
 
+  // Filter cities based on location input
   useEffect(() => {
     if (location) {
       const filtered = CZECH_CITIES.filter(city => 
@@ -87,6 +92,16 @@ export function SearchBar() {
     }
   }, [location])
 
+  // Filter services based on query input
+  useEffect(() => {
+    if (query && query.length >= 2) {
+      const filtered = searchServices(query)
+      setFilteredServices(filtered)
+    } else {
+      setFilteredServices([])
+    }
+  }, [query])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (locationRef.current && !locationRef.current.contains(event.target as Node)) {
@@ -94,6 +109,9 @@ export function SearchBar() {
       }
       if (distanceRef.current && !distanceRef.current.contains(event.target as Node)) {
         setShowDistanceDropdown(false)
+      }
+      if (serviceRef.current && !serviceRef.current.contains(event.target as Node)) {
+        setShowServiceDropdown(false)
       }
     }
 
@@ -119,9 +137,19 @@ export function SearchBar() {
     setShowDistanceDropdown(false)
   }
 
+  const selectService = (serviceName: string) => {
+    setQuery(serviceName)
+    setShowServiceDropdown(false)
+  }
+
   const clearLocation = () => {
     setLocation('')
     setShowLocationDropdown(false)
+  }
+
+  const clearQuery = () => {
+    setQuery('')
+    setShowServiceDropdown(false)
   }
 
   const getCurrentDistanceLabel = () => {
@@ -133,15 +161,57 @@ export function SearchBar() {
     <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-4 bg-white rounded-lg p-4 shadow-lg">
         {/* Service Search Input */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" ref={serviceRef}>
           <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder={language === 'en' ? 'What service do you need? (e.g., oil change, car wash)' : 'Jakou službu potřebujete? (např. výměna oleje, mytí auta)'}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={language === 'en' ? 'What service do you need? (e.g., oil change, car wash)' : 'Jakou službu potřebujete? (např. výměna oleje, mytí auta)'}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value)
+                setShowServiceDropdown(e.target.value.length >= 2)
+              }}
+              onFocus={() => {
+                if (query.length >= 2) setShowServiceDropdown(true)
+              }}
+              className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={clearQuery}
+                className="absolute right-2 top-2 p-1 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Service Dropdown */}
+          {showServiceDropdown && filteredServices.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+              <div className="p-2 text-sm font-medium text-black border-b">
+                {language === 'en' ? 'Suggested services' : 'Navrhované služby'}
+              </div>
+              {filteredServices.map((service) => (
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => selectService(service.name)}
+                  className="w-full text-left px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none text-black"
+                >
+                  <div className="flex items-center">
+                    <Wrench className="h-4 w-4 text-gray-400 mr-2" />
+                    <div className="flex-1">
+                      <div className="font-medium">{service.name}</div>
+                      <div className="text-xs text-gray-500">{service.category}</div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Location Selector */}

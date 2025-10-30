@@ -1,150 +1,162 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
-    const categoryId = searchParams.get('categoryId')
-    const search = searchParams.get('search')
+    const { searchParams } = new URL(request.url)
+    const category = searchParams.get('category')
     const location = searchParams.get('location')
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
-
-    const skip = (page - 1) * limit
-
-    const where: any = {}
-
-    if (categoryId && categoryId !== 'all') {
-      where.categoryId = categoryId
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const minRating = parseFloat(searchParams.get('minRating') || '0')
+    
+    const where: any = {
+      isActive: true,
     }
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
-      ]
+    if (category) {
+      where.category = {
+        slug: category
+      }
     }
 
     if (location) {
-      where.OR = [
-        { address: { contains: location, mode: 'insensitive' } },
-        { city: { contains: location, mode: 'insensitive' } }
-      ]
+      where.city = {
+        contains: location,
+        mode: 'insensitive'
+      }
     }
 
-    const [services, total] = await Promise.all([
-      prisma.service.findMany({
-        where,
-        include: {
-          category: true,
-          reviews: {
-            select: {
-              rating: true
-            }
-          },
-          _count: {
-            select: {
-              reviews: true
-            }
+    // Get services with reviews for rating calculation
+    const services = await prisma.service.findMany({
+      where,
+      include: {
+        category: true,
+        reviews: {
+          select: {
+            rating: true
           }
         },
-        skip,
-        take: limit,
-        orderBy: {
-          createdAt: 'desc'
+        images: {
+          orderBy: {
+            order: 'asc'
+          },
+          take: 1
+        },
+        _count: {
+          select: {
+            reviews: true,
+            favorites: true
+          }
         }
-      }),
-      prisma.service.count({ where })
-    ])
-
-    // Calculate average ratings
-    const servicesWithRatings = services.map((service: any) => {
-      const ratings = service.reviews.map((r: any) => r.rating)
-      const averageRating = ratings.length > 0 
-        ? ratings.reduce((sum: number, rating: number) => sum + rating, 0) / ratings.length 
-        : 0
-      
-      return {
-        ...service,
-        averageRating: Math.round(averageRating * 10) / 10,
-        totalReviews: service._count.reviews,
-        reviews: undefined, // Remove reviews from response
-        _count: undefined // Remove count from response
-      }
+      },
+      skip: (page - 1) * limit,
+      take: limit,
     })
 
-    const totalPages = Math.ceil(total / limit)
+    // Calculate average ratings and filter by minRating
+    const servicesWithRatings = services
+      .map(service => {
+        const totalRating = service.reviews.reduce((sum, review) => sum + review.rating, 0)
+        const averageRating = service.reviews.length > 0 ? totalRating / service.reviews.length : 0
+        
+        return {
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          category: service.category.name,
+          categorySlug: service.category.slug,
+          address: service.address,
+          city: service.city,
+          state: service.state,
+          phone: service.phone,
+          website: service.website,
+          rating: averageRating,
+          reviewCount: service._count.reviews,
+          favoriteCount: service._count.favorites,
+          isVerified: service.isVerified,
+          priceRange: service.priceRange,
+          image: service.images[0]?.url || '/services/default-service.svg',
+          location: {
+            lat: service.latitude,
+            lng: service.longitude
+          }
+        }
+      })
+      .filter(service => service.rating >= minRating)
+
+    const totalCount = await prisma.service.count({ where })
 
     return NextResponse.json({
       services: servicesWithRatings,
       pagination: {
         page,
         limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit)
       }
     })
+
   } catch (error) {
-    console.error('Services fetch error:', error)
+    console.error('Services API error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch services' },
       { status: 500 }
     )
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const {
-      name,
-      description,
-      categoryId,
-      address,
-      city,
-      state,
-      zipCode,
-      phone,
-      email,
-      website,
-      openingHours,
-      priceRange,
-      latitude,
-      longitude
-    } = await req.json()
-
-    if (!name || !description || !categoryId || !address || !city || !state || !zipCode) {
+    const body = await request.json()
+    
+    // Validate required fields
+    const requiredFields = ['name', 'description', 'categoryId', 'address', 'city', 'state']
+    const missingFields = requiredFields.filter(field => !body[field])
+    
+    if (missingFields.length > 0) {
       return NextResponse.json(
-        { error: 'Name, description, categoryId, address, city, state, and zipCode are required' },
+        { error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400 }
       )
     }
 
     const service = await prisma.service.create({
       data: {
-        name,
-        description,
-        categoryId,
-        address,
-        city,
-        state,
-        zipCode,
-        phone: phone || null,
-        email: email || null,
-        website: website || null,
-        openingHours: openingHours || null,
-        priceRange: priceRange || null,
-        latitude: latitude || null,
-        longitude: longitude || null
+        name: body.name,
+        description: body.description,
+        categoryId: body.categoryId,
+        address: body.address,
+        city: body.city,
+        state: body.state,
+        zipCode: body.zipCode,
+        phone: body.phone,
+        email: body.email,
+        website: body.website,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        openingHours: body.openingHours,
+        priceRange: body.priceRange,
+        ownerId: body.ownerId,
+      },
+      include: {
+        category: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
       }
     })
 
     return NextResponse.json({ service }, { status: 201 })
+
   } catch (error) {
-    console.error('Service creation error:', error)
+    console.error('Create service error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create service' },
       { status: 500 }
     )
   }

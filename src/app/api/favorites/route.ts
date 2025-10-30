@@ -1,58 +1,100 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]/route'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+    const favorites = await prisma.favorite.findMany({
+      where: {
+        userId: session.user.id
+      },
       include: {
-        favorites: {
+        service: {
           include: {
-            service: true
+            category: true,
+            images: {
+              orderBy: {
+                order: 'asc'
+              },
+              take: 1
+            },
+            reviews: {
+              select: {
+                rating: true
+              }
+            },
+            _count: {
+              select: {
+                reviews: true
+              }
+            }
           }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    // Calculate average ratings for each service
+    const favoritesWithRatings = favorites.map(favorite => {
+      const service = favorite.service
+      const totalRating = service.reviews.reduce((sum: number, review: any) => sum + review.rating, 0)
+      const averageRating = service.reviews.length > 0 ? totalRating / service.reviews.length : 0
+
+      return {
+        id: favorite.id,
+        createdAt: favorite.createdAt,
+        service: {
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          category: service.category.name,
+          address: service.address,
+          city: service.city,
+          rating: averageRating,
+          reviewCount: service._count.reviews,
+          image: service.images[0]?.url || '/services/default-service.svg',
+          priceRange: service.priceRange,
+          isVerified: service.isVerified
         }
       }
     })
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
+    return NextResponse.json({ favorites: favoritesWithRatings })
 
-    return NextResponse.json({ favorites: user.favorites })
   } catch (error) {
-    console.error('Favorites fetch error:', error)
+    console.error('Favorites API error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch favorites' },
       { status: 500 }
     )
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const { serviceId } = await req.json()
+    const body = await request.json()
+    const { serviceId } = body
 
     if (!serviceId) {
       return NextResponse.json(
@@ -61,49 +103,74 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+    // Check if service exists
+    const service = await prisma.service.findUnique({
+      where: { id: serviceId }
     })
 
-    if (!user) {
+    if (!service) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { error: 'Service not found' },
         { status: 404 }
       )
     }
 
+    // Check if already favorited
+    const existingFavorite = await prisma.favorite.findUnique({
+      where: {
+        userId_serviceId: {
+          userId: session.user.id,
+          serviceId: serviceId
+        }
+      }
+    })
+
+    if (existingFavorite) {
+      return NextResponse.json(
+        { error: 'Service already in favorites' },
+        { status: 400 }
+      )
+    }
+
+    // Add to favorites
     const favorite = await prisma.favorite.create({
       data: {
-        userId: user.id,
-        serviceId
+        userId: session.user.id,
+        serviceId: serviceId
       },
       include: {
-        service: true
+        service: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
       }
     })
 
     return NextResponse.json({ favorite }, { status: 201 })
+
   } catch (error) {
     console.error('Add favorite error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to add favorite' },
       { status: 500 }
     )
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(request.url)
     const serviceId = searchParams.get('serviceId')
 
     if (!serviceId) {
@@ -113,29 +180,20 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-
+    // Remove from favorites
     await prisma.favorite.deleteMany({
       where: {
-        userId: user.id,
-        serviceId
+        userId: session.user.id,
+        serviceId: serviceId
       }
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ message: 'Removed from favorites' })
+
   } catch (error) {
     console.error('Remove favorite error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to remove favorite' },
       { status: 500 }
     )
   }

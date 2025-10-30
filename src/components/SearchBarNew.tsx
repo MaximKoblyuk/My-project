@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Search, MapPin, ChevronDown, X } from 'lucide-react'
+import { Search, MapPin, ChevronDown, X, Wrench } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { searchServices, CAR_SERVICES } from '@/data/services'
 
 const CZECH_CITIES = [
   'Praha',
@@ -100,11 +101,31 @@ export function SearchBar() {
   const [distance, setDistance] = useState(5)
   const [showLocationDropdown, setShowLocationDropdown] = useState(false)
   const [showDistanceDropdown, setShowDistanceDropdown] = useState(false)
+  const [showServiceDropdown, setShowServiceDropdown] = useState(false)
   const [filteredCities, setFilteredCities] = useState<string[]>([])
+  const [filteredServices, setFilteredServices] = useState<typeof CAR_SERVICES>([])
   const [isSearching, setIsSearching] = useState(false)
   
   const locationRef = useRef<HTMLDivElement>(null)
   const distanceRef = useRef<HTMLDivElement>(null)
+  const serviceRef = useRef<HTMLDivElement>(null)
+
+  const handleServiceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setQuery(value)
+    
+    console.log('🔧 Service input changed:', value)
+    
+    if (value.length >= 2) {
+      const filtered = searchServices(value)
+      setFilteredServices(filtered)
+      console.log('🛠️ Filtered services:', filtered)
+      setShowServiceDropdown(true)
+    } else {
+      setFilteredServices([])
+      setShowServiceDropdown(false)
+    }
+  }
 
   const handleLocationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -142,6 +163,24 @@ export function SearchBar() {
     setShowLocationDropdown(true)
   }
 
+  const selectService = (serviceName: string) => {
+    setQuery(serviceName)
+    setShowServiceDropdown(false)
+    console.log('✅ Service selected:', serviceName)
+  }
+
+  const selectCity = (city: string) => {
+    setLocation(city)
+    setShowLocationDropdown(false)
+    console.log('✅ City selected:', city)
+  }
+
+  const selectDistance = (distanceValue: number) => {
+    console.log('📏 Distance selected:', distanceValue, 'km')
+    setDistance(distanceValue)
+    setShowDistanceDropdown(false)
+  }
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (locationRef.current && !locationRef.current.contains(event.target as Node)) {
@@ -149,6 +188,9 @@ export function SearchBar() {
       }
       if (distanceRef.current && !distanceRef.current.contains(event.target as Node)) {
         setShowDistanceDropdown(false)
+      }
+      if (serviceRef.current && !serviceRef.current.contains(event.target as Node)) {
+        setShowServiceDropdown(false)
       }
     }
 
@@ -204,16 +246,7 @@ export function SearchBar() {
     }
   }
 
-  const selectCity = (city: string) => {
-    setLocation(city)
-    setShowLocationDropdown(false)
-  }
 
-  const selectDistance = (distanceValue: number, label: string) => {
-    console.log('📏 Distance selected:', distanceValue, 'km -', label)
-    setDistance(distanceValue)
-    setShowDistanceDropdown(false)
-  }
 
   const clearLocation = () => {
     setLocation('')
@@ -232,7 +265,7 @@ export function SearchBar() {
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-200">
           
           {/* Service Search Input */}
-          <div className="relative p-6 flex-1 lg:flex-[2]">
+          <div className="relative p-6 flex-1 lg:flex-[2]" ref={serviceRef}>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               {language === 'en' ? 'Service Type' : 'Typ služby'}
             </label>
@@ -242,14 +275,51 @@ export function SearchBar() {
                 type="text"
                 placeholder={language === 'en' ? 'What service do you need?' : 'Jakou službu potřebujete?'}
                 value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value)
-                  console.log('🔧 Service query changed:', e.target.value)
+                onChange={handleServiceInputChange}
+                onFocus={() => {
+                  if (query.length >= 2) setShowServiceDropdown(true)
                 }}
-                className="w-full pl-12 pr-4 py-4 text-lg border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 bg-transparent"
+                className="w-full pl-12 pr-10 py-4 text-lg border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 bg-transparent"
                 aria-label={language === 'en' ? 'Service type' : 'Typ služby'}
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery('')
+                    setShowServiceDropdown(false)
+                  }}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
+
+            {/* Service Autocomplete Dropdown */}
+            {showServiceDropdown && filteredServices.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-3 mx-6 bg-white border border-gray-300 rounded-xl shadow-2xl z-[100] max-h-64 overflow-y-auto">
+                <div className="p-3 text-sm font-medium text-gray-700 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                  {language === 'en' ? 'Suggested services' : 'Navrhované služby'}
+                </div>
+                {filteredServices.map((service) => (
+                  <button
+                    key={service.id}
+                    type="button"
+                    onClick={() => selectService(service.name)}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-0 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <Wrench className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{service.name}</div>
+                        <div className="text-xs text-gray-500 mt-1">{service.category}</div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Location Selector */}
@@ -357,7 +427,7 @@ export function SearchBar() {
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => selectDistance(option.value, option.label)}
+                      onClick={() => selectDistance(option.value)}
                       className={`w-full text-left px-4 py-3 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-0 ${
                         distance === option.value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-900'
                       }`}

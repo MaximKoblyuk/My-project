@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { Star, MapPin, Clock, Heart } from 'lucide-react'
 
 interface ServiceCardProps {
@@ -17,7 +18,49 @@ interface ServiceCardProps {
   }
 }
 
+// Hook pro správu oblíbených
+const useFavorites = () => {
+  const [favorites, setFavorites] = useState<number[]>([])
+
+  useEffect(() => {
+    const saved = localStorage.getItem('favorite-services')
+    if (saved) {
+      setFavorites(JSON.parse(saved))
+    }
+  }, [])
+
+  const addToFavorites = (serviceId: number) => {
+    const newFavorites = [...favorites, serviceId]
+    setFavorites(newFavorites)
+    localStorage.setItem('favorite-services', JSON.stringify(newFavorites))
+  }
+
+  const removeFromFavorites = (serviceId: number) => {
+    const newFavorites = favorites.filter(id => id !== serviceId)
+    setFavorites(newFavorites)
+    localStorage.setItem('favorite-services', JSON.stringify(newFavorites))
+  }
+
+  const isFavorite = (serviceId: number) => {
+    return favorites.includes(serviceId)
+  }
+
+  return { favorites, addToFavorites, removeFromFavorites, isFavorite }
+}
+
 export function ServiceCard({ service }: ServiceCardProps) {
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites()
+  const isServiceFavorite = isFavorite(service.id)
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (isServiceFavorite) {
+      removeFromFavorites(service.id)
+    } else {
+      addToFavorites(service.id)
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
       <div className="flex">
@@ -33,8 +76,11 @@ export function ServiceCard({ service }: ServiceCardProps) {
               {service.openNow ? 'Open Now' : 'Closed'}
             </span>
           </div>
-          <button className="absolute top-3 right-3 p-1 bg-white rounded-full shadow-sm hover:bg-gray-50">
-            <Heart className="w-4 h-4 text-gray-600" />
+          <button 
+            onClick={handleFavoriteClick}
+            className="absolute top-3 right-3 p-1 bg-white rounded-full shadow-sm hover:bg-gray-50 transition-colors"
+          >
+            <Heart className={`w-4 h-4 ${isServiceFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
           </button>
         </div>
 

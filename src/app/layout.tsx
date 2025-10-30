@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { LanguageProvider } from '@/contexts/LanguageContext'
+import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="font-sans">
         <LanguageProvider>
-          <div className="min-h-screen bg-gray-50">
-            {children}
-          </div>
+          <FavoritesProvider>
+            <div className="min-h-screen bg-gray-50">
+              {children}
+            </div>
+          </FavoritesProvider>
         </LanguageProvider>
       </body>
     </html>

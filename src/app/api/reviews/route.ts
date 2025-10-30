@@ -1,65 +1,96 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]/route'
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(request.url)
     const serviceId = searchParams.get('serviceId')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
 
-    if (!serviceId) {
-      return NextResponse.json(
-        { error: 'Service ID is required' },
-        { status: 400 }
-      )
+    const where: any = {
+      isHidden: false
+    }
+
+    if (serviceId) {
+      where.serviceId = serviceId
     }
 
     const reviews = await prisma.review.findMany({
-      where: { serviceId },
+      where,
       include: {
         user: {
           select: {
             id: true,
             name: true,
-            email: true
+            image: true
+          }
+        },
+        service: {
+          select: {
+            id: true,
+            name: true,
+            category: {
+              select: {
+                name: true
+              }
+            }
           }
         }
       },
       orderBy: {
         createdAt: 'desc'
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    })
+
+    const totalCount = await prisma.review.count({ where })
+
+    return NextResponse.json({
+      reviews,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit)
       }
     })
 
-    return NextResponse.json({ reviews })
   } catch (error) {
-    console.error('Reviews fetch error:', error)
+    console.error('Reviews API error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch reviews' },
       { status: 500 }
     )
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const { serviceId, rating, content } = await req.json()
+    const body = await request.json()
+    const { serviceId, rating, title, content } = body
 
-    if (!serviceId || !rating) {
+    // Validate required fields
+    if (!serviceId || !rating || !content) {
       return NextResponse.json(
-        { error: 'Service ID and rating are required' },
+        { error: 'Missing required fields: serviceId, rating, content' },
         { status: 400 }
       )
     }
 
+    // Validate rating range
     if (rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: 'Rating must be between 1 and 5' },
@@ -67,22 +98,25 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+    // Check if service exists
+    const service = await prisma.service.findUnique({
+      where: { id: serviceId }
     })
 
-    if (!user) {
+    if (!service) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { error: 'Service not found' },
         { status: 404 }
       )
     }
 
     // Check if user already reviewed this service
-    const existingReview = await prisma.review.findFirst({
+    const existingReview = await prisma.review.findUnique({
       where: {
-        userId: user.id,
-        serviceId
+        userId_serviceId: {
+          userId: session.user.id,
+          serviceId: serviceId
+        }
       }
     })
 
@@ -93,29 +127,38 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Create review
     const review = await prisma.review.create({
       data: {
-        userId: user.id,
-        serviceId,
         rating,
-        content: content || ''
+        title,
+        content,
+        userId: session.user.id,
+        serviceId,
       },
       include: {
         user: {
           select: {
             id: true,
             name: true,
-            email: true
+            image: true
+          }
+        },
+        service: {
+          select: {
+            id: true,
+            name: true
           }
         }
       }
     })
 
     return NextResponse.json({ review }, { status: 201 })
+
   } catch (error) {
     console.error('Create review error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create review' },
       { status: 500 }
     )
   }
