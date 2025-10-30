@@ -1,20 +1,27 @@
 module.exports = {
-  apps: [{
-    name: 'fixpoints',
-    script: 'npm',
-    args: 'start',
-    cwd: '/var/www/fixpoints',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    },
-    error_file: '/var/log/pm2/fixpoints-error.log',
-    out_file: '/var/log/pm2/fixpoints-out.log',
-    log_file: '/var/log/pm2/fixpoints-combined.log',
-    time: true
-  }]
-};
+  apps: [
+    {
+      name: 'fixpoints',
+      script: './node_modules/.bin/next',
+      args: 'start',
+      cwd: '/home/maximadmin/var/www/fixpoints',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3000
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 3000
+      },
+      log_file: '/home/maximadmin/.pm2/logs/fixpoints.log',
+      out_file: '/home/maximadmin/.pm2/logs/fixpoints-out.log',
+      error_file: '/home/maximadmin/.pm2/logs/fixpoints-error.log',
+      time: true,
+      combine_logs: true
+    }
+  ]
+}
