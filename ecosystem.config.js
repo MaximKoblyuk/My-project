@@ -17,9 +17,9 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3000
       },
-      log_file: '/var/log/pm2/fixpoints.log',
-      out_file: '/var/log/pm2/fixpoints-out.log',
-      error_file: '/var/log/pm2/fixpoints-error.log',
+      log_file: '/home/maximadmin/.pm2/logs/fixpoints.log',
+      out_file: '/home/maximadmin/.pm2/logs/fixpoints-out.log',
+      error_file: '/home/maximadmin/.pm2/logs/fixpoints-error.log',
       time: true,
       combine_logs: true
     }
